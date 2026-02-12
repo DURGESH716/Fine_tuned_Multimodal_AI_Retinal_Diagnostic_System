@@ -129,7 +129,6 @@ model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
 )
 
 ```
----
 
 ## Challenges & Solutions
 
