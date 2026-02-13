@@ -55,8 +55,7 @@ We implemented **QLoRA (Quantized Low-Rank Adaptation)** to enable high-fidelity
 | **Target Modules** | `q_proj, v_proj` | Targeted key attention projections. |
 
 <p align="center">
-<img src="screenshot1.png" alt="Training Dashboard" width="800">
-
+<img width="692" height="921" alt="Training Dashboard" src="https://github.com/user-attachments/assets/3b5db490-36ab-451b-90ad-127a9c1b603d" />
 
 
 
