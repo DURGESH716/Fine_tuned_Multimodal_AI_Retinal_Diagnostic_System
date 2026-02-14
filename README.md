@@ -84,8 +84,8 @@ We implemented **QLoRA (Quantized Low-Rank Adaptation)** to enable high-fidelity
 ### 1. Clone the Repo
 
 ```bash
-git clone https://github.com/your-username/retina-ai-diagnostic.git
-cd retina-ai-diagnostic
+git clone https://github.com/DURGESH716/Fine_tuned_Multimodal_AI_Retinal_Diagnostic_System.git
+cd Fine_tuned_Multimodal_AI_Retinal_Diagnostic_System
 
 ```
 
