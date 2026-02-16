@@ -13,12 +13,12 @@ from transformers import (
 )
 from peft import LoraConfig, get_peft_model
 
-# --- CONFIGURATION ---
+
 MODEL_PATH = "/home/durgesh/VLLM_EngineCore/qwen_model_weights"
 DATASET_PATH = "/home/durgesh/VLLM_EngineCore/cleaned_retina_train.jsonl"
 OUTPUT_DIR = "/home/durgesh/VLLM_EngineCore/outputs/retina_v2_professional"
 
-# --- 1. DATASET CLASS ---
+
 class RetinaDataset(Dataset):
     def __init__(self, jsonl_path, processor):
         self.processor = processor
@@ -37,8 +37,7 @@ class RetinaDataset(Dataset):
         except Exception as e:
             image = Image.new('RGB', (448, 448), (0, 0, 0))
         
-        # Use a simplified message structure. 
-        # The processor will calculate the correct number of vision tokens.
+
         messages = [
             {
                 "role": "user",
@@ -55,10 +54,10 @@ class RetinaDataset(Dataset):
             }
         ]
         
-        # apply_chat_template inserts <|vision_start|>, <|image_pad|>, etc.
+
         text = self.processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=False)
         
-        # The processor MUST receive the PIL image here to sync with the text pads
+
         inputs = self.processor(
             text=[text],
             images=[image],
@@ -72,7 +71,6 @@ class RetinaDataset(Dataset):
         return inputs
 
 def main():
-    # 2. MODEL LOADING
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
         bnb_4bit_compute_dtype=torch.bfloat16,
@@ -90,9 +88,9 @@ def main():
         torch_dtype=torch.bfloat16
     )
 
-    # 3. LORA & GRADIENT FIXES
+
     print("Applying LoRA adapters (Rank 64)...")
-    # This line is critical to fix the 'None of the inputs have requires_grad' warning
+
     model.enable_input_require_grads() 
     
     lora_config = LoraConfig(
@@ -105,7 +103,7 @@ def main():
     )
     model = get_peft_model(model, lora_config)
 
-    # 4. DATA COLLATOR
+
     data_collator = DataCollatorForSeq2Seq(
         tokenizer=processor.tokenizer,
         model=model,
@@ -113,7 +111,7 @@ def main():
         padding=True
     )
 
-    # 5. TRAINING ARGUMENTS
+
     training_args = TrainingArguments(
         output_dir=OUTPUT_DIR,
         per_device_train_batch_size=2,      
@@ -127,12 +125,10 @@ def main():
         save_steps=100,
         save_total_limit=1,
         lr_scheduler_type="cosine",
-        # Set to False initially to troubleshoot stability; use True if VRAM peaks
         gradient_checkpointing=False,
         report_to="none"
     )
 
-    # 6. INITIALIZE TRAINER
     trainer = Trainer(
         model=model,
         args=training_args,
@@ -140,11 +136,11 @@ def main():
         data_collator=data_collator,
     )
 
-    # 7. START TRAINING
+
     print(f"🚀 Launching Stable Training on Blackwell...")
     trainer.train()
     
-    # 8. SAVE
+
     model.save_pretrained(os.path.join(OUTPUT_DIR, "final_retina_lora"))
     print("Training Complete. LoRA adapters saved.")
 
